@@ -1,0 +1,7 @@
+{
+  "_comment": "this is a datamap file serving to tell where each jsonl/json file is.",
+  
+  "comments": "comments.json.jsonl",
+  "posts": "posts.json.jsonl",
+  "alerts": "alerts.json"
+}
