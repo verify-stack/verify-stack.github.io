@@ -1,7 +1,7 @@
 {
   "_comment": "this is a datamap file serving to tell where each jsonl/json file is.",
   
-  "comments": "comments.json.jsonl",
-  "posts": "posts.json.jsonl",
+  "comments": "r_oldrobloxrevivals_comments.jsonl",
+  "posts": "r_oldrobloxrevivals_posts.jsonl",
   "alerts": "alerts.json"
 }
