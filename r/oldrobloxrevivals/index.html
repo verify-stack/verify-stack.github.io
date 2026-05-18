@@ -22,19 +22,18 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item dropdown me-3">
-                        <form class="d-flex me-auto" role="search">
-                            <input class="form-control me-2" type="search" placeholder="search posts" aria-label="Search"/>
-                            <button class="btn btn-outline-success" type="submit">search</button>
-                        </form>
+                        <div class="d-flex me-auto" role="search">
+                            <input id="searchBar" class="form-control me-2" type="search" placeholder="search posts" aria-label="Search"/>
+                        </div>
                     </li>
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown" style="display: none;">
                         <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                            Dropdown
+                            Hot
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="#">Action</a></li>
-                            <li><a class="dropdown-item" href="#">Another action</a></li>
-                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                            <li><a class="dropdown-item" href="#">Hot</a></li>
+                            <li><a class="dropdown-item" href="#">New</a></li>
+                            <li><a class="dropdown-item" href="#">Comments</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -42,32 +41,22 @@
         </div>
     </nav>
    <div class="container py-5">
+        <div id="top">
+            <small class="col-sm-5 text-muted">
+                Archive provided by hollow, archive viewer created by verify-stack. Made with love using <a href="https://getbootstrap.com/">Bootstrap 5.3</a>!
+            </small>
+            <nav class="col-sm-4 mt-2" aria-label="pagination">
+                <ul class="pagination">
+                    <li class="page-item" id="pagePrevious" style="display: none;">
+                        <a class="page-link" href="#">Previous</a>
+                    </li>
+                    <li class="page-item" id="pageNext" style="display: none;">
+                        <a class="page-link" href="#">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
         <div class="row justify-content-center" id="feed">
-            <div class="col-md-8 col-lg-6" id="template" style="display: none;">
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-grey d-flex align-items-center border-bottom-0">
-                        <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png" id="avatarIcon" class="rounded-circle me-2" width="40" height="40" alt="Avatar">
-                        <div id="userInfo">
-                            <a><h6 class="mb-0" id="author">u/test
-                                <!-- <span class="badge text-bg-warning">Mod</span> -->
-                            </h6></a>
-                            <small class="text-muted" id="creation">01/01/1984</small>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <h2 id="title">Welcome to r/oldrobloxrevivals!</h2>
-                        <p class="card-text" id="text">[no text]</p>
-                        <div class="d-flex justify-content-between border-top pt-3" id="stats">
-                            <i class="bi bi-chat-left-fill"></i>
-                            <small class="me-3 ms-2 text-muted" id="commentsCount">142 comments</small>
-                            <i class="bi bi-arrow-up-circle-fill"></i>
-                            <small class="me-3 ms-2 text-muted" id="votesCount">-15</small>
-
-                            <button class="btn btn-primary btn-sm py-0 px-1 w-25 ms-auto">View</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <h1 class="text-center text-muted mb-3" id="loadingText">Loading, this may take a bit. Please wait!</h1>
             <div class="col-md-8 col-lg-6">
                 <div class="card mb-4 shadow-sm border-green">
@@ -94,24 +83,85 @@
                     </div>
                 </div>
             </div>
-            
+        </div>
+        <div class="row justify-content-center" id="post" style="display: none;">
+            <div class="col-lg-10" id="postTop">
+                <div class="card mb-5 shadow-sm border-green">
+                    <div class="card-header bg-grey d-flex align-items-center border-bottom-0">
+                        <img src="https://avatars.githubusercontent.com/u/180130153?v=4" id="avatarIcon" class="rounded-circle me-2" width="40" height="40" alt="Avatar">
+                        <div id="userInfo">
+                            <h6 class="mb-0" id="author">verify-stack
+                                <!-- <span class="badge text-bg-warning">Mod</span> -->
+                            </h6>
+                            <small class="text-muted" id="creation">05/17/2026</small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h2 id="title">Welcome to r/oldrobloxrevivals archive!</h2>
+                        <p class="card-text" id="text">This archive was provided by hollow/<a href="https://www.reddit.com/user/sogwod/">u/sogwod</a> since the subreddit shutdown.</p>
+                        <div class="d-flex justify-content-between border-top pt-3" id="stats">
+                            <i class="bi bi-chat-left-fill"></i>
+                            <small class="me-3 ms-2 text-muted" id="commentsCount">142 comments</small>
+                            <i class="bi bi-arrow-up-circle-fill"></i>
+                            <small class="me-3 ms-2 text-muted" id="votesCount">-15</small>
+
+                            <span class="py-0 px-1 w-25 ms-auto"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+    <div class="col-md-8 col-lg-6" id="template" style="display: none;">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-grey d-flex align-items-center border-bottom-0">
+                <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png" id="avatarIcon" class="rounded-circle me-2" width="40" height="40" alt="Avatar">
+                <div id="userInfo">
+                    <a><h6 class="mb-0" id="author">u/test
+                        <!-- <span class="badge text-bg-warning">Mod</span> -->
+                    </h6></a>
+                    <small class="text-muted" id="creation">01/01/1984</small>
+                </div>
+            </div>
+            <div class="card-body">
+                <h2 id="title">Welcome to r/oldrobloxrevivals!</h2>
+                <p class="card-text" id="text">[no text]</p>
+                <div class="d-flex justify-content-between border-top pt-3" id="stats">
+                    <i class="bi bi-chat-left-fill"></i>
+                    <small class="me-3 ms-2 text-muted" id="commentsCount">142 comments</small>
+                    <i class="bi bi-arrow-up-circle-fill"></i>
+                    <small class="me-3 ms-2 text-muted" id="votesCount">-15</small>
+
+                    <button class="btn btn-primary btn-sm py-0 px-1 w-25 ms-auto">View</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <li class="page-item" id="pageLinkNumber" style="display: none;">
+        <a class="page-link" href="#">1</a>
+    </li>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script type="module">
         // inline javascript main script
         // by verify-stack
-        // v2026.0517
+        // v2026.0518
         import SevenZip from 'https://cdn.jsdelivr.net/npm/7z-wasm@1.2.0/7zz.es6.js';
 
         const feed = document.getElementById('feed');
         const postTemplate = document.getElementById('template');
+        const searchBar = document.getElementById('searchBar');
+        const pagePrevious = document.getElementById('pagePrevious');
+        const pageNext = document.getElementById('pageNext');
+        const pageLinkNumber = document.getElementById('pageLinkNumber');
         const rootURL = 'https://verify-stack.github.io/r/oldrobloxrevivals/data/';
         const dataMapFile = rootURL + 'map.json';
         const dataFile = rootURL + 'data.7z';
+        const MAX_PAGES = 500;
 
         let dataMap;
         let posts;
+        let searchTimeout;
+        let currentPage = 1;
         
         class utils {
             static parseJSONL(data) {
@@ -132,9 +182,17 @@
                 sevenZip.FS.mkdir('/out');
                 sevenZip.callMain(['x', 'a.7z', '-o/out']);
                 
-                return [utils.parseJSONL(sevenZip.FS.readFile('/out/' + dataMap.posts, {
+                posts = utils.parseJSONL(sevenZip.FS.readFile('/out/' + dataMap.posts, {
                     encoding: 'utf8'
-                }))];
+                }))
+                posts = posts.map(post => ({
+                    title: post.title,
+                    selftext: post.selftext,
+                    author: post.author,
+                    score: post.score,
+                    num_comments: post.num_comments,
+                    created_utc: post.created_utc
+                }));
             }
 
             static async getDataMap() {
@@ -176,6 +234,13 @@
                 
                 return text.replace(/[&<>"']/g, function(m) { return map[m]; });
             }
+
+            static deleteThingsInRange(startNode, endNode) {
+                const newRange = document.createRange();
+                newRange.setStartAfter(startNode);
+                newRange.setEndBefore(endNode);
+                newRange.deleteContents();
+            }
         }
 
         class main {
@@ -185,9 +250,25 @@
                 return data.data.subreddit.icon_img || 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_4.png';
             }
 
+            static getSearchQuery() {
+                return searchBar.value.toLowerCase().trim()
+            }
+
             static async renderFeed() {
-                let postsList = [...posts[0]];
-                postsList.forEach(post => {
+                let postsList = [...posts];
+                feed.innerHTML = '';
+                if (main.getSearchQuery())
+                    postsList = postsList.filter(post => {
+                        // TODO: add comments searching
+                        const thingsToSearchFor = [
+                            post.title,
+                            post.selftext,
+                            post.author
+                        ].join(' ').toLowerCase();
+
+                        return thingsToSearchFor.includes(main.getSearchQuery());
+                    });
+                postsList.slice(MAX_PAGES * (currentPage - 1), MAX_PAGES * currentPage).forEach(post => {
                     const newPost = postTemplate.cloneNode(true);
                     newPost.querySelector('.card > .card-header > #userInfo > a > #author').innerHTML = utils.escapeHtml('u/' + post.author || '[deleted]');
                     newPost.querySelector('.card > .card-header > #userInfo > #creation').innerHTML = utils.formatTime(post.created_utc || 0);
@@ -200,12 +281,49 @@
                     newPost.style.display = 'block';
                     feed.appendChild(newPost);
                 });
-                feed.querySelector('#loadingText').style.display = 'none';
+
+                // now we handle pagination, maybe move this to a different function?
+                utils.deleteThingsInRange(pagePrevious, pageNext);
+                let paginationLength = Math.ceil(postsList.length / MAX_PAGES);
+                if (paginationLength < 1) // i know there's a better way to do so, i'm not just gonna find it
+                    paginationLength = 2;
+                if (currentPage == 1)
+                    pagePrevious.classList.add('disabled');
+                else if (currentPage == paginationLength + 1)
+                    pageNext.classList.add('disabled');
+                else {
+                    pagePrevious.classList.remove('disabled');
+                    pageNext.classList.remove('disabled');
+                }
+                if (MAX_PAGES * paginationLength != postsList.length)
+                    paginationLength++;
+                for (let index = 1; index < paginationLength; index++) {
+                    const element = postsList[index];
+                    const clonedElement = pageLinkNumber.cloneNode(true);
+                    clonedElement.id = 'pageLinkNumber' + index.toString();
+                    clonedElement.querySelector('#pageLinkNumber' + index.toString() + ' > a').innerHTML = index.toString();
+                    clonedElement.style.display = 'block';
+                    if (index == currentPage)
+                        clonedElement.classList.add('active');
+                    clonedElement.onclick = function() {
+                        currentPage = index;
+                        main.renderFeed();
+                    }
+                    pagePrevious.parentNode.insertBefore(clonedElement, pageNext);
+                }
+                
+                //feed.querySelector('#loadingText').style.display = 'none';
             }
         }
         
         await utils.getDataMap();
-        posts = await utils.getPostsAndComments();
+        await utils.getPostsAndComments();
+
+        searchBar.addEventListener('input', () => {
+            currentPage = 1;
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(main.renderFeed, 150);
+        });
         await main.renderFeed();
     </script>
 </body>
