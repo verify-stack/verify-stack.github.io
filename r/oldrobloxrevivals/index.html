@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>reddit archive viewer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <style>
+        .btn, .form-control, .dropdown-menu, .card, .modal-content {
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-semibold" style="color: orange;" href="#">reddit archive viewer</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item dropdown me-3">
+                        <form class="d-flex me-auto" role="search">
+                            <input class="form-control me-2" type="search" placeholder="search posts" aria-label="Search"/>
+                            <button class="btn btn-outline-success" type="submit">search</button>
+                        </form>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            Dropdown
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="#">Action</a></li>
+                            <li><a class="dropdown-item" href="#">Another action</a></li>
+                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+   <div class="container py-5">
+        <div class="row justify-content-center" id="feed">
+            <div class="col-md-8 col-lg-6" id="template" style="display: none;">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-grey d-flex align-items-center border-bottom-0">
+                        <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png" id="avatarIcon" class="rounded-circle me-2" width="40" height="40" alt="Avatar">
+                        <div id="userInfo">
+                            <a><h6 class="mb-0" id="author">u/test
+                                <!-- <span class="badge text-bg-warning">Mod</span> -->
+                            </h6></a>
+                            <small class="text-muted" id="creation">01/01/1984</small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h2 id="title">Welcome to r/oldrobloxrevivals!</h2>
+                        <p class="card-text" id="text">[no text]</p>
+                        <div class="d-flex justify-content-between border-top pt-3" id="stats">
+                            <i class="bi bi-chat-left-fill"></i>
+                            <small class="me-3 ms-2 text-muted" id="commentsCount">142 comments</small>
+                            <i class="bi bi-arrow-up-circle-fill"></i>
+                            <small class="me-3 ms-2 text-muted" id="votesCount">-15</small>
+
+                            <button class="btn btn-primary btn-sm py-0 px-1 w-25 ms-auto">View</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <h1 class="text-center text-muted mb-3" id="loadingText">Loading, this may take a bit. Please wait!</h1>
+            <div class="col-md-8 col-lg-6">
+                <div class="card mb-4 shadow-sm border-green">
+                    <div class="card-header bg-grey d-flex align-items-center border-bottom-0">
+                        <img src="https://avatars.githubusercontent.com/u/180130153?v=4" id="avatarIcon" class="rounded-circle me-2" width="40" height="40" alt="Avatar">
+                        <div id="userInfo">
+                            <h6 class="mb-0" id="author">verify-stack
+                                <!-- <span class="badge text-bg-warning">Mod</span> -->
+                            </h6>
+                            <small class="text-muted" id="creation">05/17/2026</small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h2 id="title">Welcome to r/oldrobloxrevivals archive!</h2>
+                        <p class="card-text" id="text">This archive was provided by hollow/<a href="https://www.reddit.com/user/sogwod/">u/sogwod</a> since the subreddit shutdown.</p>
+                        <div class="d-flex justify-content-between border-top pt-3" id="stats">
+                            <i class="bi bi-chat-left-fill"></i>
+                            <small class="me-3 ms-2 text-muted" id="commentsCount">142 comments</small>
+                            <i class="bi bi-arrow-up-circle-fill"></i>
+                            <small class="me-3 ms-2 text-muted" id="votesCount">-15</small>
+
+                            <button class="btn btn-primary btn-sm py-0 px-1 w-25 ms-auto">View</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script type="module">
+        // inline javascript main script
+        // by verify-stack
+        // v2026.0517
+        import SevenZip from 'https://cdn.jsdelivr.net/npm/7z-wasm@1.2.0/7zz.es6.js';
+
+        const feed = document.getElementById('feed');
+        const postTemplate = document.getElementById('template');
+        const rootURL = 'https://verify-stack.github.io/r/oldrobloxrevivals/data/';
+        const dataMapFile = rootURL + 'map.json';
+        const dataFile = rootURL + 'data.7z';
+
+        let dataMap;
+        let posts;
+        
+        class utils {
+            static parseJSONL(data) {
+                return data
+                    .trim()
+                    .split(/\r?\n/)
+                    .filter(Boolean)
+                    .map(jsonLine => JSON.parse(jsonLine));
+            }
+
+            static async getPostsAndComments() {
+                const res = await fetch(dataFile);
+                const sevenZip = await SevenZip({
+                    locateFile: file => `https://cdn.jsdelivr.net/npm/7z-wasm@1.2.0/${file}`
+                });
+                const data = new Uint8Array(await res.arrayBuffer());
+                sevenZip.FS.writeFile('a.7z', data);
+                sevenZip.FS.mkdir('/out');
+                sevenZip.callMain(['x', 'a.7z', '-o/out']);
+                
+                return [utils.parseJSONL(sevenZip.FS.readFile('/out/' + dataMap.posts, {
+                    encoding: 'utf8'
+                }))];
+            }
+
+            static async getDataMap() {
+                try {
+                    const res = await fetch(dataMapFile);
+                    const data = await res.json();
+                    dataMap = data;
+                } catch (error) {
+                    alert('Failed to get data map because of ' + error);
+                }
+            }
+
+            static formatTime(timestamp) {
+                const difference = Date.now() - (timestamp * 1000);
+                const minutes = Math.floor(difference / 60000);
+                if (minutes < 60) 
+                    return minutes + 'm ago';
+                const hours = Math.floor(minutes / 60);
+                if (hours < 24) 
+                    return hours + 'h ago';
+                const days = Math.floor(hours / 24);
+                if (days < 30) 
+                    return days + 'd ago';
+
+                return new Date(timestamp * 1000).toLocaleDateString();
+            }
+
+            // Source - https://stackoverflow.com/a/4835406
+            // Posted by Kip, modified by community. See post 'Timeline' for change history
+            // Retrieved 2026-05-17, License - CC BY-SA 3.0
+            static escapeHtml(text) {
+                var map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                
+                return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            }
+        }
+
+        class main {
+            static async getPFP(name) {
+                const result = await fetch('https://www.reddit.com/user/' + name + '/about.json');
+                const data = await result.json();
+                return data.data.subreddit.icon_img || 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_4.png';
+            }
+
+            static async renderFeed() {
+                let postsList = [...posts[0]];
+                postsList.forEach(post => {
+                    const newPost = postTemplate.cloneNode(true);
+                    newPost.querySelector('.card > .card-header > #userInfo > a > #author').innerHTML = utils.escapeHtml('u/' + post.author || '[deleted]');
+                    newPost.querySelector('.card > .card-header > #userInfo > #creation').innerHTML = utils.formatTime(post.created_utc || 0);
+                    //newPost.querySelector('.card > .card-header > #avatarIcon').innerHTML = await main.getPFP(post.author || '[deleted]');
+
+                    newPost.querySelector('.card > .card-body > #title').innerHTML = utils.escapeHtml(post.title);
+                    newPost.querySelector('.card > .card-body > #text').innerHTML = utils.escapeHtml(post.selftext);
+                    newPost.querySelector('.card > .card-body > #stats > #commentsCount').innerHTML = post.num_comments;
+                    newPost.querySelector('.card > .card-body > #stats > #votesCount').innerHTML = post.score;
+                    newPost.style.display = 'block';
+                    feed.appendChild(newPost);
+                });
+                feed.querySelector('#loadingText').style.display = 'none';
+            }
+        }
+        
+        await utils.getDataMap();
+        posts = await utils.getPostsAndComments();
+        await main.renderFeed();
+    </script>
+</body>
+</html>
