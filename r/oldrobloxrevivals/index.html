@@ -12,7 +12,7 @@
         }
     </style>
     <script>
-        let dropdownList = [];
+        let dropdownList = {};
         function changeDropdown(item, id) {
             dropdownList[id] = item.innerText;
             document.getElementById(id).innerText = item.innerText;
@@ -67,6 +67,20 @@
                     </li>
                 </ul>
             </nav>
+            <nav aria-label="breadcrumb" style="display: none;">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a id="subredditBreadCrumb" href="#">Subreddit</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Post</li>
+                </ol>
+            </nav>
+            <div class="alert alert-warning" role="alert" id="moderationWarning" style="display: none;">
+                <i class="bi bi-question-circle me-2"></i>
+                This post was likely removed or never got past moderation.
+            </div>
+            <div class="alert alert-danger" role="alert" id="deletionWarning" style="display: none;">
+                <i class="bi bi-question-circle me-2"></i>
+                This post was deleted by Reddit, moderation, or by the user.
+            </div>
         </div>
         <div class="row justify-content-center" id="feed">
             <h1 class="text-center text-muted mb-3" id="loadingText">Loading, this may take a bit. Please wait!</h1>
@@ -119,7 +133,7 @@
                     <i class="bi bi-arrow-up-circle-fill"></i>
                     <small class="me-3 ms-2 text-muted" id="votesCount">-15</small>
 
-                    <button class="btn btn-primary btn-sm py-0 px-1 w-25 ms-auto">View</button>
+                    <button class="btn btn-primary btn-sm py-0 px-1 w-25 ms-auto" id="viewButton">View</button>
                 </div>
             </div>
         </div>
@@ -128,6 +142,8 @@
         <a class="page-link" href="#">1</a>
     </li>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+    <script src="https://github.com/cure53/DOMPurify/releases/download/3.4.5/purify.min.js"></script>
     <script type="module">
         // inline javascript main script
         // by verify-stack
@@ -136,18 +152,22 @@
         import SevenZip from 'https://cdn.jsdelivr.net/npm/7z-wasm@1.2.0/7zz.es6.js';
 
         const feed = document.getElementById('feed');
+        const postUI = document.getElementById('post');
+        const goBackToSubreddit = document.getElementById('subredditBreadCrumb');
         const postTemplate = document.getElementById('template');
         const searchBar = document.getElementById('searchBar');
         const pagePrevious = document.getElementById('pagePrevious');
         const pageNext = document.getElementById('pageNext');
         const pageLinkNumber = document.getElementById('pageLinkNumber');
         const postsSort = document.getElementById('postsSort');
+        const moderationWarning = document.getElementById('moderationWarning');
+        const deletionWarning = document.getElementById('deletionWarning');
         const rootURL = 'https://verify-stack.github.io/r/oldrobloxrevivals/data/';
         const dataMapFile = rootURL + 'map.json';
         const dataFile = rootURL + 'data.7z';
         const postsSortObserver = new MutationObserver(mutations => {
             mutations.forEach(mutation => {
-                //if (mutation.type === 'childList' || mutation.type === 'characterData')
+                if (mutation.type === 'childList' || mutation.type === 'characterData')
                     main.renderFeed();
             });
         });
@@ -157,6 +177,9 @@
         let posts;
         let searchTimeout;
         let currentPage = 1;
+        let profilesList = {
+            '[deleted]': 'https://www.redditstatic.com/shreddit/assets/snoovatar-back-64x64px.png'
+        };
         
         class utils {
             static parseJSONL(data) {
@@ -215,43 +238,23 @@
                 return new Date(timestamp * 1000).toLocaleDateString();
             }
 
-            // Source - https://stackoverflow.com/a/4835406
-            // Posted by Kip, modified by community. See post 'Timeline' for change history
-            // Retrieved 2026-05-17, License - CC BY-SA 3.0
-            static escapeHtml(text) {
-                var map = {
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#039;'
-                };
-                
-                return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-            }
-
             static deleteThingsInRange(startNode, endNode) {
                 const newRange = document.createRange();
                 newRange.setStartAfter(startNode);
                 newRange.setEndBefore(endNode);
                 newRange.deleteContents();
             }
+
+            static getRandomInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
         }
 
         class main {
-            static async getPFP(name) {
-                // const result = await fetch('https://www.reddit.com/user/' + name + '/about.json');
-                // const data = await result.json();
-                // old and bad but who cares
-                const xhr = new XMLHttpRequest();
-                xhr.open('GET', 'https://www.reddit.com/user/' + name + '/about.json', false);
-                xhr.send(null);
-                if (xhr.status === 200) {
-                    let data = JSON.parse(xhr.responseText);
-                    return data.data.subreddit.icon_img;
-                }
-                else
-                    return 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_4.png';
+            static getPFP(name) {
+                if (!profilesList[name])
+                    profilesList[name] = 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_' + utils.getRandomInt(0, 7).toString() + '.png';
+                return profilesList[name];
             }
 
             static getSearchQuery() {
@@ -278,6 +281,21 @@
                 if (post.selftext == "[deleted]")
                     return deletedScore + (post.created_utc / 100);
                 return 0;
+            }
+
+            static renderFullPost(post) {
+                postUI.querySelector('#postTop > .card > .card-header > #userInfo > #author').innerText = DOMPurify.sanitize('u/' + post.author || '[deleted]');
+                postUI.querySelector('#postTop > .card > .card-header > #userInfo > #creation').innerText = utils.formatTime(post.created_utc || 0);
+                postUI.querySelector('#postTop > .card > .card-header > #avatarIcon').setAttribute('src', main.getPFP(post.author || '[deleted]'));
+
+                postUI.querySelector('#postTop > .card > .card-body > #title').innerHTML = DOMPurify.sanitize(post.title);
+                postUI.querySelector('#postTop > .card > .card-body > #text').innerHTML = DOMPurify.sanitize(marked.parse(post.selftext));
+                postUI.querySelector('#postTop > .card > .card-body > #stats > #commentsCount').innerText = post.num_comments;
+                postUI.querySelector('#postTop > .card > .card-body > #stats > #votesCount').innerText = post.score;
+                if (post.selftext == '[removed]')
+                    moderationWarning.style.display = 'block';
+                if (post.selftext == '[deleted]')
+                    deletionWarning.style.display = 'block';
             }
 
             static async renderFeed() {
@@ -312,14 +330,21 @@
                 postsList.slice(MAX_PAGES * (currentPage - 1), MAX_PAGES * currentPage).forEach(post => {
                     const newPost = postTemplate.cloneNode(true);
                     newPost.id = post.created_utc;
-                    newPost.querySelector('.card > .card-header > #userInfo > a > #author').innerText = utils.escapeHtml('u/' + post.author || '[deleted]');
+                    newPost.querySelector('.card > .card-header > #userInfo > a > #author').innerText = DOMPurify.sanitize('u/' + post.author || '[deleted]');
                     newPost.querySelector('.card > .card-header > #userInfo > #creation').innerText = utils.formatTime(post.created_utc || 0);
-                    //newPost.querySelector('.card > .card-header > #avatarIcon').setAttribute('src', pfpSrc);
+                    newPost.querySelector('.card > .card-header > #avatarIcon').setAttribute('src', main.getPFP(post.author || '[deleted]'));
 
-                    newPost.querySelector('.card > .card-body > #title').innerHTML = utils.escapeHtml(post.title);
-                    newPost.querySelector('.card > .card-body > #text').innerHTML = utils.escapeHtml(post.selftext);
+                    newPost.querySelector('.card > .card-body > #title').innerHTML = DOMPurify.sanitize(post.title);
+                    newPost.querySelector('.card > .card-body > #text').innerHTML = DOMPurify.sanitize(marked.parse(post.selftext));
                     newPost.querySelector('.card > .card-body > #stats > #commentsCount').innerText = post.num_comments;
                     newPost.querySelector('.card > .card-body > #stats > #votesCount').innerText = post.score;
+                    newPost.querySelector('.card > .card-body > #stats > #viewButton').onclick = function() {
+                        pageNext.parentNode.style.display = 'none';
+                        goBackToSubreddit.parentNode.parentNode.parentNode.style.display = 'flex';
+                        postUI.style.display = 'flex';
+                        feed.style.display = 'none';
+                        main.renderFullPost(post);
+                    };
                     newPost.style.display = 'block';
                     feed.appendChild(newPost);
                 });
@@ -369,7 +394,15 @@
             childList: true,
             characterData: true,
             subtree: true
-        })
+        });
+        goBackToSubreddit.onclick = function() {
+            pageNext.parentNode.style.display = 'flex';
+            goBackToSubreddit.parentNode.parentNode.parentNode.style.display = 'none';
+            postUI.style.display = 'none';
+            feed.style.display = 'flex';
+            moderationWarning.style.display = 'none';
+            deletionWarning.style.display = 'none';
+        }
         await main.renderFeed();
     </script>
 </body>
