@@ -11,6 +11,13 @@
             border-radius: 2px;
         }
     </style>
+    <script>
+        let dropdownList = [];
+        function changeDropdown(item, id) {
+            dropdownList[id] = item.innerText;
+            document.getElementById(id).innerText = item.innerText;
+        }
+    </script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -26,14 +33,19 @@
                             <input id="searchBar" class="form-control me-2" type="search" placeholder="search posts" aria-label="Search"/>
                         </div>
                     </li>
-                    <li class="nav-item dropdown" style="display: none;">
-                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                            Hot
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="postsSort">
+                            Old
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="#">Hot</a></li>
-                            <li><a class="dropdown-item" href="#">New</a></li>
-                            <li><a class="dropdown-item" href="#">Comments</a></li>
+                            <li><a class="dropdown-item" onclick="changeDropdown(this, 'postsSort')" href="#">Hot</a></li>
+                            <li><a class="dropdown-item" onclick="changeDropdown(this, 'postsSort')" href="#">Top</a></li>
+                            <li><a class="dropdown-item" onclick="changeDropdown(this, 'postsSort')" href="#">New</a></li>
+                            <li><a class="dropdown-item" onclick="changeDropdown(this, 'postsSort')" href="#">Old</a></li> 
+                            <li><a class="dropdown-item" onclick="changeDropdown(this, 'postsSort')" href="#">Comments</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" onclick="changeDropdown(this, 'postsSort')" href="#">Removed</a></li>
+                            <li><a class="dropdown-item" onclick="changeDropdown(this, 'postsSort')" href="#">Deleted</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -58,31 +70,6 @@
         </div>
         <div class="row justify-content-center" id="feed">
             <h1 class="text-center text-muted mb-3" id="loadingText">Loading, this may take a bit. Please wait!</h1>
-            <div class="col-md-8 col-lg-6">
-                <div class="card mb-4 shadow-sm border-green">
-                    <div class="card-header bg-grey d-flex align-items-center border-bottom-0">
-                        <img src="https://avatars.githubusercontent.com/u/180130153?v=4" id="avatarIcon" class="rounded-circle me-2" width="40" height="40" alt="Avatar">
-                        <div id="userInfo">
-                            <h6 class="mb-0" id="author">verify-stack
-                                <!-- <span class="badge text-bg-warning">Mod</span> -->
-                            </h6>
-                            <small class="text-muted" id="creation">05/17/2026</small>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <h2 id="title">Welcome to r/oldrobloxrevivals archive!</h2>
-                        <p class="card-text" id="text">This archive was provided by hollow/<a href="https://www.reddit.com/user/sogwod/">u/sogwod</a> since the subreddit shutdown.</p>
-                        <div class="d-flex justify-content-between border-top pt-3" id="stats">
-                            <i class="bi bi-chat-left-fill"></i>
-                            <small class="me-3 ms-2 text-muted" id="commentsCount">142 comments</small>
-                            <i class="bi bi-arrow-up-circle-fill"></i>
-                            <small class="me-3 ms-2 text-muted" id="votesCount">-15</small>
-
-                            <button class="btn btn-primary btn-sm py-0 px-1 w-25 ms-auto">View</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
         <div class="row justify-content-center" id="post" style="display: none;">
             <div class="col-lg-10" id="postTop">
@@ -145,6 +132,7 @@
         // inline javascript main script
         // by verify-stack
         // v2026.0518
+        "use strict";
         import SevenZip from 'https://cdn.jsdelivr.net/npm/7z-wasm@1.2.0/7zz.es6.js';
 
         const feed = document.getElementById('feed');
@@ -153,9 +141,16 @@
         const pagePrevious = document.getElementById('pagePrevious');
         const pageNext = document.getElementById('pageNext');
         const pageLinkNumber = document.getElementById('pageLinkNumber');
+        const postsSort = document.getElementById('postsSort');
         const rootURL = 'https://verify-stack.github.io/r/oldrobloxrevivals/data/';
         const dataMapFile = rootURL + 'map.json';
         const dataFile = rootURL + 'data.7z';
+        const postsSortObserver = new MutationObserver(mutations => {
+            mutations.forEach(mutation => {
+                //if (mutation.type === 'childList' || mutation.type === 'characterData')
+                    main.renderFeed();
+            });
+        });
         const MAX_PAGES = 500;
 
         let dataMap;
@@ -184,7 +179,7 @@
                 
                 posts = utils.parseJSONL(sevenZip.FS.readFile('/out/' + dataMap.posts, {
                     encoding: 'utf8'
-                }))
+                }));
                 posts = posts.map(post => ({
                     title: post.title,
                     selftext: post.selftext,
@@ -245,13 +240,44 @@
 
         class main {
             static async getPFP(name) {
-                const result = await fetch('https://www.reddit.com/user/' + name + '/about.json');
-                const data = await result.json();
-                return data.data.subreddit.icon_img || 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_4.png';
+                // const result = await fetch('https://www.reddit.com/user/' + name + '/about.json');
+                // const data = await result.json();
+                // old and bad but who cares
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', 'https://www.reddit.com/user/' + name + '/about.json', false);
+                xhr.send(null);
+                if (xhr.status === 200) {
+                    let data = JSON.parse(xhr.responseText);
+                    return data.data.subreddit.icon_img;
+                }
+                else
+                    return 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_4.png';
             }
 
             static getSearchQuery() {
                 return searchBar.value.toLowerCase().trim()
+            }
+
+            static getHotScore(post) { // http://web.archive.org/web/20150601021348/http://amix.dk/blog/post/19588
+                const s = post.score;
+                const order = Math.log10(Math.max(Math.abs(s), 1));
+                const sign = s > 0 ? 1 : s < 0 ? -1 : 0;
+                const seconds = post.created_utc - 1134028003;
+                const value = sign * order + seconds / 45000;
+                if (post.selftext == '[removed]' || post.selftext == '[deleted]')
+                    return 0;
+
+                return Math.round(value * 1e7) / 1e7;
+            }
+            static getRemovedScore(post, deletedScore) {
+                if (post.selftext == "[removed]")
+                    if (deletedScore == 100)
+                        return 200 + (post.created_utc / 100);
+                    else
+                        return 200;
+                if (post.selftext == "[deleted]")
+                    return deletedScore + (post.created_utc / 100);
+                return 0;
             }
 
             static async renderFeed() {
@@ -268,16 +294,32 @@
 
                         return thingsToSearchFor.includes(main.getSearchQuery());
                     });
+                postsList.sort((a, b) => {
+                    if (dropdownList['postsSort'] == 'New')
+                        return b.created_utc - a.created_utc;
+                    if (dropdownList['postsSort'] == 'Top')
+                        return (b.score || 0) - (a.score || 0);
+                    if (dropdownList['postsSort'] == 'Comments')
+                        return (b.num_comments || 0) - (a.num_comments || 0);
+                    if (dropdownList['postsSort'] == 'Hot')
+                        return main.getHotScore(b) - main.getHotScore(a);
+                    if (dropdownList['postsSort'] == 'Removed')
+                        return main.getRemovedScore(b, 100) - main.getRemovedScore(a, 100);
+                    if (dropdownList['postsSort'] == 'Deleted')
+                        return main.getRemovedScore(b, 300) - main.getRemovedScore(a, 300);
+                    return a.created_utc - b.created_utc; // Old
+                });
                 postsList.slice(MAX_PAGES * (currentPage - 1), MAX_PAGES * currentPage).forEach(post => {
                     const newPost = postTemplate.cloneNode(true);
-                    newPost.querySelector('.card > .card-header > #userInfo > a > #author').innerHTML = utils.escapeHtml('u/' + post.author || '[deleted]');
-                    newPost.querySelector('.card > .card-header > #userInfo > #creation').innerHTML = utils.formatTime(post.created_utc || 0);
-                    //newPost.querySelector('.card > .card-header > #avatarIcon').innerHTML = await main.getPFP(post.author || '[deleted]');
+                    newPost.id = post.created_utc;
+                    newPost.querySelector('.card > .card-header > #userInfo > a > #author').innerText = utils.escapeHtml('u/' + post.author || '[deleted]');
+                    newPost.querySelector('.card > .card-header > #userInfo > #creation').innerText = utils.formatTime(post.created_utc || 0);
+                    //newPost.querySelector('.card > .card-header > #avatarIcon').setAttribute('src', pfpSrc);
 
                     newPost.querySelector('.card > .card-body > #title').innerHTML = utils.escapeHtml(post.title);
                     newPost.querySelector('.card > .card-body > #text').innerHTML = utils.escapeHtml(post.selftext);
-                    newPost.querySelector('.card > .card-body > #stats > #commentsCount').innerHTML = post.num_comments;
-                    newPost.querySelector('.card > .card-body > #stats > #votesCount').innerHTML = post.score;
+                    newPost.querySelector('.card > .card-body > #stats > #commentsCount').innerText = post.num_comments;
+                    newPost.querySelector('.card > .card-body > #stats > #votesCount').innerText = post.score;
                     newPost.style.display = 'block';
                     feed.appendChild(newPost);
                 });
@@ -311,7 +353,6 @@
                     }
                     pagePrevious.parentNode.insertBefore(clonedElement, pageNext);
                 }
-                
                 //feed.querySelector('#loadingText').style.display = 'none';
             }
         }
@@ -324,6 +365,11 @@
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(main.renderFeed, 150);
         });
+        postsSortObserver.observe(postsSort, {
+            childList: true,
+            characterData: true,
+            subtree: true
+        })
         await main.renderFeed();
     </script>
 </body>
